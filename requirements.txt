@@ -1,0 +1,5 @@
+snowflake-sqlalchemy==1.5.3
+pandas==2.2.2
+pydantic==2.7.0
+pydantic-settings==2.2.1
+pytest
