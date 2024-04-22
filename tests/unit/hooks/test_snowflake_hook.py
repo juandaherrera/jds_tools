@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 import pandas as pd
 import pytest
 
-from jds_tools.hooks.snowflake_hook import SnowflakeHook
+from jds_tools.hooks import SnowflakeHook
 
 
 @pytest.mark.unit
