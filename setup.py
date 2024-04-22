@@ -30,6 +30,6 @@ setup(
     python_requires=">=3.10",
     license="MIT",
     packages=find_packages(include=["jds_tools.*"]),
-    install_requires=["snowflake-sqlalchemy==1.5.3", "pandas>=2,<3"],
+    install_requires=["snowflake-sqlalchemy==1.5.3", "pandas>=2,<3", "jinja2==3.1.3"],
     long_description=readme(),
 )
