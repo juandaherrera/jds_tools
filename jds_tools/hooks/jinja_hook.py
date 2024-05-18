@@ -76,3 +76,4 @@ class JinjaHook(BaseHook):
             return template.render(params)
         except Exception as e:
             logging.error(f"Error rendering template '{template_file}'. Details: {e}")
+            raise

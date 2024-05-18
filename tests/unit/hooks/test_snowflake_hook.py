@@ -1,13 +1,19 @@
+import logging
 from unittest.mock import MagicMock, patch
 
 import pandas as pd
 import pytest
 
-from jds_tools.hooks import SnowflakeHook
+from jds_tools.hooks.snowflake_hook import SnowflakeHook
+
+
+@pytest.fixture
+def snowflake_hook():
+    return SnowflakeHook("account", "user", "password", "database", "warehouse")
 
 
 @pytest.mark.unit
-def test_fetch_data():
+def test_fetch_data(snowflake_hook):
     test_query = "SELECT * FROM test_table"
     test_data = [
         (1, "Juan"),
@@ -23,10 +29,9 @@ def test_fetch_data():
     result_mock.fetchall.return_value = test_data
     result_mock.keys.return_value = columns
 
-    with patch('jds_tools.hooks.snowflake_hook.SnowflakeHook.create_engine', return_value=None):
-        hook = SnowflakeHook("account", "user", "password", "database", "warehouse")
-        hook.engine = engine_mock
+    with patch('jds_tools.hooks.snowflake_hook.create_engine', return_value=None):
+        snowflake_hook.engine = engine_mock
 
-        result_df = hook.fetch_data(test_query)
+        result_df = snowflake_hook.fetch_data(test_query)
 
         pd.testing.assert_frame_equal(result_df, expected_df)

@@ -5,7 +5,8 @@ class Settings(BaseSettings):
     SNOWFLAKE_ACCOUNT: str = ""
     SNOWFLAKE_USER: str = ""
     SNOWFLAKE_PASSWORD: str = ""
-    SNOWFLAKE_DATABASE: str = ""
+    SNOWFLAKE_DATABASE: str = None
+    SNOWFLAKE_WAREHOUSE: str = None
 
     class Config:
         env_file = ".env"
@@ -17,6 +18,7 @@ class Settings(BaseSettings):
             user=self.SNOWFLAKE_USER,
             password=self.SNOWFLAKE_PASSWORD,
             database=self.SNOWFLAKE_DATABASE,
+            warehouse=self.SNOWFLAKE_WAREHOUSE,
         )
 
 
