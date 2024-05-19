@@ -63,6 +63,29 @@ async def async_post(
 
     Returns:
         List[str]: A list of response texts from each request, in the same order as the input data_list and headers_list.
+
+    Examples:
+        # Example 1: Sending POST requests without data and headers
+        responses = await async_post("https://api.example.com/endpoint")
+
+        # Example 2: Sending POST requests with data and headers
+        data = [
+            {"name": "John", "age": 30},
+            {"name": "Jane", "age": 25}
+        ]
+        headers = [
+            {"Authorization": "Bearer token1"},
+            {"Authorization": "Bearer token2"}
+        ]
+        responses = await async_post("https://api.example.com/endpoint", data_list=data, headers_list=headers)
+
+        # Example 3: Using async_post with asyncio
+        responses = asyncio.run(async_post("https://api.example.com/endpoint"))
+
+        # Example 4: Using async_post with nest_asyncio in notebooks
+        nest_asyncio.apply()
+
+        responses = asyncio.run(async_post("https://api.example.com/endpoint"))
     """
     if (
         not isinstance(data_list, list)
