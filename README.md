@@ -1,5 +1,6 @@
 # JD Science Tools
 [![Python](https://img.shields.io/badge/Python-3.10+-5646ED?style=for-the-badge&logo=python&logoColor=white&labelColor=101010)](https://python.org)
+![Tag](https://img.shields.io/github/v/tag/juandaherrera/jds_tools?style=for-the-badge&labelColor=101010)
 
 ## Descripción
 Librería de utilidades diseñada para proyectos de Data Science, Data Engineering y Python Development. Proporciona herramientas y funciones útiles para facilitar el trabajo en estos campos. Este proyecto es de uso personal, pero está disponible para quienes deseen explorarlo o contribuir.
