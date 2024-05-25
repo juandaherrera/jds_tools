@@ -1,5 +1,5 @@
 import logging
-from typing import Literal, Union
+from typing import List, Literal, Union
 
 import pandas as pd
 from snowflake.sqlalchemy import URL
@@ -92,6 +92,65 @@ class SnowflakeHook(DataHook):
         self.connection_data = kwards if kwards else self.connection_data
         self.url = URL(**self.connection_data)
         self.engine = create_engine(self.url)
+
+    def _split_queries(self, query: str) -> List[str]:
+        """
+        Split a SQL query into individual queries.
+
+        This method splits a SQL query into individual queries based on the semicolon (;) delimiter,
+        excluding lines that are commented out with "--" or "//" before the semicolon.
+
+        Args:
+            query (str): The SQL query to split.
+
+        Returns:
+            List[str]: A list of individual queries.
+
+        """
+        lines = query.split('\n')
+        queries = []
+        current_query = ""
+        for line in lines:
+            line = line.strip()
+            if "--" in line:
+                line = line.split("--")[0].strip()
+            elif "//" in line:
+                line = line.split("//")[0].strip()
+            if ";" in line:
+                parts = line.split(";")
+                for part in parts:
+                    if part == "":
+                        continue
+                    current_query += part + ";"
+                    queries.append(current_query.strip())
+                    current_query = ""
+            else:
+                current_query += line + " " if line != "" else ""
+        if current_query:
+            queries.append(current_query.strip())
+        return queries
+
+    def execute_statement(self, query: str) -> None:
+        """
+        Executes the given SQL query or queries on the Snowflake database.
+
+        Args:
+            query (str): The SQL query or queries to execute. Multiple queries should be separated by ';'.
+
+        Raises:
+            SQLAlchemyError: If there is an error executing the query.
+
+        Returns:
+            None
+        """
+        try:
+            individual_queries = self._split_queries(query)
+            with self.engine.connect() as connection:
+                for q in individual_queries:
+                    connection.execute(q)
+            logging.info("Query executed successfully on Snowflake.")
+        except SQLAlchemyError as e:
+            logging.error(f"Error trying to execute query on Snowflake. Details: {e}")
 
     def fetch_data(self, query: str, data_return: bool = True) -> Union[pd.DataFrame, None]:
         """
