@@ -12,7 +12,7 @@ pip install git+https://github.com/juandaherrera/jds_tools.git
 ```
 Para instalar una versión específica, ejecuta el siguiente comando:
 ```bash
-pip install git+https://github.com/juandaherrera/jds_tools.git@0.2.0
+pip install git+https://github.com/juandaherrera/jds_tools.git@1.1.0
 ```
 Asegúrate de tener pip instalado en tu sistema y de estar utilizando Python 3.10 o superior.
 
