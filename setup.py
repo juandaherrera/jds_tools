@@ -26,7 +26,7 @@ setup(
     version=__VERSION__,
     author="Juan David Herrera",
     author_email="juandaherreparra@gmail.com",
-    description="",
+    description="Librería de utilidades diseñada para proyectos de Data Science, Data Engineering y Python Development",
     python_requires=">=3.10",
     license="MIT",
     packages=find_packages(include=["jds_tools.*"]),
@@ -37,4 +37,11 @@ setup(
         "aiohttp==3.9.5",
     ],
     long_description=readme(),
+    long_description_content_type="text/markdown",
+    url="https://github.com/juandaherrera/jds_tools",
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+    ],
 )
