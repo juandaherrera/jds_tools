@@ -13,7 +13,7 @@ pip install jds_tools
 ```
 Para instalar una versión específica desde PyPI, ejecuta el siguiente comando:
 ```bash
-pip install jds_tools==2.1.0
+pip install jds_tools==2.1.1
 ```
 ### GitHub
 Para instalar JD Science Tools desde el repositorio de GitHub, ejecuta el siguiente comando en tu terminal:
@@ -22,7 +22,7 @@ pip install git+https://github.com/juandaherrera/jds_tools.git
 ```
 Para instalar una versión específica, ejecuta el siguiente comando:
 ```bash
-pip install git+https://github.com/juandaherrera/jds_tools.git@2.1.0
+pip install git+https://github.com/juandaherrera/jds_tools.git@2.1.1
 ```
 Asegúrate de tener pip instalado en tu sistema y de estar utilizando Python 3.10 o superior.
 
