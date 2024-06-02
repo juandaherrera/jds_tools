@@ -13,9 +13,8 @@ class DataHook(BaseHook):
     @abstractmethod
     def fetch_data(self, query: str) -> DataFrame:
         pass
-    
-    @staticmethod
-    def _split_queries(query: str) -> List[str]:
+
+    def _split_queries(self, query: str) -> List[str]:
         """
         Split a SQL query into individual queries.
 
