@@ -51,3 +51,9 @@ def test_split_queries(snowflake_hook):
     result_queries = snowflake_hook._split_queries(test_query)
 
     assert result_queries == expected_queries
+
+
+@pytest.mark.unit
+def test_hidden_password(snowflake_hook):
+    assert snowflake_hook.password == "***"
+    assert snowflake_hook.url == "snowflake://user:***@account/warehouse?warehouse=database"

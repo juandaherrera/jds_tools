@@ -49,11 +49,22 @@ class JinjaHook(BaseHook):
         """
         if os.path.exists(value) and os.path.isdir(value):
             self._templates_path = value
-            self._update_environment()
+            self.__update_environment()
         else:
             raise ValueError("The specified path does not exist or is not a directory")
 
-    def _update_environment(self) -> None:
+    def __str__(self) -> str:
+        """
+        Returns a string representation of the JinjaHook object.
+
+        The returned string includes the value of the `templates_path` attribute.
+
+        Returns:
+            str: A string representation of the JinjaHook object.
+        """
+        return f"JinjaHook(templates_path='{self.templates_path}')'"
+
+    def __update_environment(self) -> None:
         """Private method to update the Jinja environment based on the current template path."""
         try:
             self.environment = Environment(loader=FileSystemLoader(self._templates_path))
