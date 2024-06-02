@@ -53,13 +53,13 @@ class SnowflakeHook(DataHook):
         """
         self._account = account
         self._user = user
-        self._password = password
+        self.__password = password
         self._warehouse = warehouse
         self._database = database
         self._schema = schema
         self._role = role
-        self._url: str = None
-        self.update_engine()
+        self.__url: str = None
+        self.__update_engine()
 
     @property
     def account(self) -> str:
@@ -68,7 +68,7 @@ class SnowflakeHook(DataHook):
     @account.setter
     def account(self, value: str) -> None:
         self._account = value
-        self.update_engine()
+        self.__update_engine()
 
     @property
     def user(self) -> str:
@@ -77,16 +77,16 @@ class SnowflakeHook(DataHook):
     @user.setter
     def user(self, value: str) -> None:
         self._user = value
-        self.update_engine()
+        self.__update_engine()
 
     @property
     def password(self) -> str:
-        return "****"
+        return "***"
 
     @password.setter
     def password(self, value: str) -> None:
-        self._password = value
-        self.update_engine()
+        self.__password = value
+        self.__update_engine()
 
     @property
     def warehouse(self) -> str:
@@ -95,7 +95,7 @@ class SnowflakeHook(DataHook):
     @warehouse.setter
     def warehouse(self, value: str) -> None:
         self._warehouse = value
-        self.update_engine()
+        self.__update_engine()
 
     @property
     def database(self) -> Optional[str]:
@@ -104,7 +104,7 @@ class SnowflakeHook(DataHook):
     @database.setter
     def database(self, value: Optional[str]) -> None:
         self._database = value
-        self.update_engine()
+        self.__update_engine()
 
     @property
     def schema(self) -> Optional[str]:
@@ -113,7 +113,7 @@ class SnowflakeHook(DataHook):
     @schema.setter
     def schema(self, value: Optional[str]) -> None:
         self._schema = value
-        self.update_engine()
+        self.__update_engine()
 
     @property
     def role(self) -> Optional[str]:
@@ -122,11 +122,11 @@ class SnowflakeHook(DataHook):
     @role.setter
     def role(self, value: Optional[str]) -> None:
         self._role = value
-        self.update_engine()
+        self.__update_engine()
 
     @property
     def url(self) -> str:
-        return self._url.replace(f"{self.user}:{self._password}", f"{self.user}:{self.password}")
+        return self.__url.replace(f"{self.user}:{self.__password}", f"{self.user}:{self.password}")
 
     @property
     def connection_data(self) -> dict:
@@ -143,7 +143,7 @@ class SnowflakeHook(DataHook):
             for key, value in {
                 "account": self.account,
                 "user": self.user,
-                "password": self._password,
+                "password": self.__password,
                 "warehouse": self.warehouse,
                 "database": self.database,
                 "schema": self.schema,
@@ -171,7 +171,7 @@ class SnowflakeHook(DataHook):
         parts.append(")")
         return "".join(parts)
 
-    def update_engine(self, **kwards) -> None:
+    def __update_engine(self, **kwards) -> None:
         """
         Update the Snowflake connection engine.
 
@@ -184,8 +184,8 @@ class SnowflakeHook(DataHook):
         """
         logging.info("Updating Snowflake url and engine.")
         self.dispose_engine()
-        self._url = URL(**self.connection_data)
-        self.engine = create_engine(self._url)
+        self.__url = URL(**self.connection_data)
+        self.engine = create_engine(self.__url)
 
     def execute_statement(self, query: str) -> None:
         """

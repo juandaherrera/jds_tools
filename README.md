@@ -6,13 +6,23 @@
 Librería de utilidades diseñada para proyectos de Data Science, Data Engineering y Python Development. Proporciona herramientas y funciones útiles para facilitar el trabajo en estos campos. Este proyecto es de uso personal, pero está disponible para quienes deseen explorarlo o contribuir.
 
 ## Instalación
-Para instalar JD Science Tools, ejecuta el siguiente comando en tu terminal:
+### PyPi
+Para instalar JD Science Tools desde PyPI, ejecuta el siguiente comando en tu terminal:
+```bash
+pip install jds_tools
+```
+Para instalar una versión específica desde PyPI, ejecuta el siguiente comando:
+```bash
+pip install jds_tools==2.1.0
+```
+### GitHub
+Para instalar JD Science Tools desde el repositorio de GitHub, ejecuta el siguiente comando en tu terminal:
 ```bash
 pip install git+https://github.com/juandaherrera/jds_tools.git
 ```
 Para instalar una versión específica, ejecuta el siguiente comando:
 ```bash
-pip install git+https://github.com/juandaherrera/jds_tools.git@2.0.1
+pip install git+https://github.com/juandaherrera/jds_tools.git@2.1.0
 ```
 Asegúrate de tener pip instalado en tu sistema y de estar utilizando Python 3.10 o superior.
 
