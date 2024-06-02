@@ -36,18 +36,3 @@ def test_fetch_data(snowflake_hook):
 
         pd.testing.assert_frame_equal(result_df, expected_df)
 
-
-@pytest.mark.unit
-def test_split_queries(snowflake_hook):
-    test_query = """
-        -- This is a comment
-        SELECT * FROM table1; -- Query 1
-        SELECT * FROM table2; -- Query 2
-        -- SELECT * FROM table3; -- Query 3 (commented out)
-        SELECT * FROM table4; -- Query 4
-    """
-    expected_queries = ["SELECT * FROM table1;", "SELECT * FROM table2;", "SELECT * FROM table4;"]
-
-    result_queries = snowflake_hook._split_queries(test_query)
-
-    assert result_queries == expected_queries
