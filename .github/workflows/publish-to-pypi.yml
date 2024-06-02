@@ -31,20 +31,21 @@ jobs:
     - name: Check if version tag exists
       id: check_tag
       run: |
-        if git rev-parse "v${{ env.VERSION }}" >/dev/null 2>&1; then
-          echo "Tag already exists"
-          exit 0
+        if git rev-parse "${{ env.VERSION }}" >/dev/null 2>&1; then
+          echo "tag_exists=true" >> $GITHUB_ENV
         else
-          echo "Tag does not exist"
+          echo "tag_exists=false" >> $GITHUB_ENV
         fi
 
     - name: Create and push tag
-      if: steps.check_tag.outputs.tag == ''
+      if: env.tag_exists == 'false'
       run: |
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git config --global user.name "github-actions[bot]"
-        git tag "v${{ env.VERSION }}"
-        git push origin "v${{ env.VERSION }}"
+        git tag "${{ env.VERSION }}"
+        git push origin "${{ env.VERSION }}"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Build package
       run: |
