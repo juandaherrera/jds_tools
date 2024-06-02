@@ -1,5 +1,5 @@
 import logging
-from typing import List, Literal, Union
+from typing import List, Literal, Optional, Union
 
 import pandas as pd
 from snowflake.sqlalchemy import URL
@@ -14,67 +14,162 @@ logger = logging.getLogger(__name__)
 
 class SnowflakeHook(DataHook):
     """
-    A class representing a Snowflake database hook.
+    A class representing a Snowflake connection hook.
 
-    This hook provides methods to interact with a Snowflake database, including fetching data, uploading data,
-    and managing the database connection.
+    This class provides methods to connect to a Snowflake database, execute SQL queries,
+    fetch data, and upload data to Snowflake.
 
     Args:
         account (str): The Snowflake account name.
-        user (str): The username for authentication.
-        password (str): The password for authentication.
-        database (str): The name of the Snowflake database.
-        warehouse (str): The name of the Snowflake warehouse.
-
-    Attributes:
-        account (str): The Snowflake account name.
-        user (str): The username for authentication.
-        password (str): The password for authentication.
-        database (str): The name of the Snowflake database.
-        warehouse (str): The name of the Snowflake warehouse.
-        _connection_data (dict): The connection data dictionary.
-        connection_data (dict): The connection data dictionary.
-        engine: The SQLAlchemy engine object for the Snowflake connection.
-
+        user (str): The Snowflake user name.
+        password (str): The Snowflake user password.
+        warehouse (str): The Snowflake warehouse name.
+        database (Optional[str], optional): The Snowflake database name. Defaults to None.
+        schema (Optional[str]): The Snowflake schema to use. Defaults to None.
+        role (Optional[str], optional): The Snowflake role name. Defaults to None.
     """
 
     def __init__(
-        self, account: str, user: str, password: str, database: str, warehouse: str
+        self,
+        account: str,
+        user: str,
+        password: str,
+        warehouse: str,
+        database: Optional[str] = None,
+        schema: Optional[str] = None,
+        role: Optional[str] = None,
     ) -> None:
-        """Initializes a new SnowflakeHook instance and creates a database engine.
+        """
+        Initializes a SnowflakeHook object.
 
         Args:
-            account (str): Snowflake account name.
-            user (str): Snowflake user name.
-            password (str): Password for the Snowflake user.
-            database (str): Name of the database to connect to.
-            warehouse (str): Name of the warehouse to use.
+            account (str): The Snowflake account name.
+            user (str): The username for connecting to Snowflake.
+            password (str): The password for connecting to Snowflake.
+            warehouse (str): The Snowflake warehouse to use.
+            database (Optional[str]): The Snowflake database to use. Defaults to None.
+            schema (Optional[str]): The Snowflake schema to use. Defaults to None.
+            role (Optional[str]): The Snowflake role to use. Defaults to None.
         """
-        self.account = account
-        self.user = user
-        self.password = password
-        self.database = database
-        self.warehouse = warehouse
-        self._connection_data: dict = None
-        self.connection_data = {
-            "account": self.account,
-            "user": self.user,
-            "password": self.password,
-            "database": self.database,
-            "warehouse": self.warehouse,
-        }
+        self._account = account
+        self._user = user
+        self._password = password
+        self._warehouse = warehouse
+        self._database = database
+        self._schema = schema
+        self._role = role
+        self._url: str = None
         self.update_engine()
 
     @property
-    def connection_data(self) -> dict:
-        return self._connection_data
+    def account(self) -> str:
+        return self._account
 
-    @connection_data.setter
-    def connection_data(self, value: dict) -> None:
-        try:
-            self._connection_data = self._connection_data | value
-        except:
-            self._connection_data = value
+    @account.setter
+    def account(self, value: str) -> None:
+        self._account = value
+        self.update_engine()
+
+    @property
+    def user(self) -> str:
+        return self._user
+
+    @user.setter
+    def user(self, value: str) -> None:
+        self._user = value
+        self.update_engine()
+
+    @property
+    def password(self) -> str:
+        return "****"
+
+    @password.setter
+    def password(self, value: str) -> None:
+        self._password = value
+        self.update_engine()
+
+    @property
+    def warehouse(self) -> str:
+        return self._warehouse
+
+    @warehouse.setter
+    def warehouse(self, value: str) -> None:
+        self._warehouse = value
+        self.update_engine()
+
+    @property
+    def database(self) -> Optional[str]:
+        return self._database
+
+    @database.setter
+    def database(self, value: Optional[str]) -> None:
+        self._database = value
+        self.update_engine()
+
+    @property
+    def schema(self) -> Optional[str]:
+        return self._schema
+
+    @schema.setter
+    def schema(self, value: Optional[str]) -> None:
+        self._schema = value
+        self.update_engine()
+
+    @property
+    def role(self) -> Optional[str]:
+        return self._role
+
+    @role.setter
+    def role(self, value: Optional[str]) -> None:
+        self._role = value
+        self.update_engine()
+
+    @property
+    def url(self) -> str:
+        return self._url.replace(f"{self.user}:{self._password}", f"{self.user}:{self.password}")
+
+    @property
+    def connection_data(self) -> dict:
+        """
+        Returns a dictionary containing the connection data for Snowflake.
+
+        Returns:
+            dict: A dictionary containing the connection data.
+                The keys are 'account', 'user', 'password', 'warehouse',
+                'database' (optional), and 'role' (optional).
+        """
+        return {
+            key: value
+            for key, value in {
+                "account": self.account,
+                "user": self.user,
+                "password": self._password,
+                "warehouse": self.warehouse,
+                "database": self.database,
+                "schema": self.schema,
+                "role": self.role,
+            }.items()
+            if value is not None
+        }
+
+    def __str__(self) -> str:
+        """
+        Returns a string representation of the SnowflakeHook object with the password masked.
+
+        Returns:
+            str: A string representation of the object with the password masked.
+        """
+        parts = [
+            f"SnowflakeHook(account='{self.account}', user='{self.user}', password='{self.password}', warehouse='{self.warehouse}'"
+        ]
+        if self.database:
+            parts.append(f", database='{self.database}'")
+        if self.schema:
+            parts.append(f", schema='{self.schema}'")
+        if self.role:
+            parts.append(f", role='{self.role}'")
+        parts.append(")")
+        return "".join(parts)
 
     def update_engine(self, **kwards) -> None:
         """
@@ -89,9 +184,8 @@ class SnowflakeHook(DataHook):
         """
         logging.info("Updating Snowflake url and engine.")
         self.dispose_engine()
-        self.connection_data = kwards if kwards else self.connection_data
-        self.url = URL(**self.connection_data)
-        self.engine = create_engine(self.url)
+        self._url = URL(**self.connection_data)
+        self.engine = create_engine(self._url)
 
     def execute_statement(self, query: str) -> None:
         """
@@ -145,6 +239,7 @@ class SnowflakeHook(DataHook):
         self,
         data: pd.DataFrame,
         table_name: str,
+        schema: str = None,
         if_exists_method: Literal["fail", "replace", "append"] = "append",
         chunk_size: int = 7500,
     ):
@@ -161,21 +256,20 @@ class SnowflakeHook(DataHook):
             chunk_size (int, optional): The number of rows to insert in each batch. Defaults to 7500.
 
         """
+        schema = schema or self.schema or ""
         try:
             data.to_sql(
                 table_name,
                 self.engine,
+                schema=schema,
                 if_exists=if_exists_method,
                 index=False,
                 chunksize=chunk_size,
             )
-            logging.info(
-                "Data uploaded to Snowflake "
-                f"({self.database}.{self.connection_data.get('schema', '')}.{table_name})."
-            )
+            logging.info(f"Data uploaded to Snowflake ({self.database}.{schema}.{table_name}).")
         except Exception as e:
             logging.error(
-                f"Error trying to upload data to Snowflake ({table_name=}). Details: {e}"
+                f"Error trying to upload data to Snowflake ({self.database}.{schema}.{table_name}). Details: {e}"
             )
 
     def dispose_engine(self) -> None:
