@@ -35,6 +35,7 @@ setup(
         "pandas==2.0.0",
         "jinja2==3.1.3",
         "aiohttp==3.9.5",
+        "gspread>=6.0.0, <7.0.0",
     ],
     long_description=readme(),
     long_description_content_type="text/markdown",
