@@ -87,7 +87,8 @@ class GoogleSheetsHook(GoogleBaseHook):
         credentials_type: GoogleCredentialsType = GoogleCredentialsType.FILE,
     ):
         super().__init__(credentials, credentials_type=credentials_type)
-        self._spreadsheet_id = spreadsheet_id
+        self._spreadsheet_id = None
+        self.spreadsheet_id = spreadsheet_id
 
     @property
     def spreadsheet_id(self) -> str:
@@ -108,7 +109,19 @@ class GoogleSheetsHook(GoogleBaseHook):
         Args:
             spreadsheet_id (str): The ID of the Google Sheets spreadsheet.
 
+        Raises:
+            ValueError: If the spreadsheet cannot be accessed with the current credentials.
+
         """
+        try:
+            # Try to open the spreadsheet
+            self._gc.open_by_key(spreadsheet_id)
+        except gspread.exceptions.SpreadsheetNotFound:
+            raise ValueError(f"No spreadsheet found with ID {spreadsheet_id}")
+        except gspread.exceptions.APIError as e:
+            raise ValueError(f"Unable to access spreadsheet with ID {spreadsheet_id}: {str(e)}")
+        except Exception as e:
+            raise ValueError(f"An error occurred: {str(e)}")
         self._spreadsheet_id = spreadsheet_id
 
     @property
@@ -121,6 +134,9 @@ class GoogleSheetsHook(GoogleBaseHook):
 
         """
         return self._gc.open_by_key(self.spreadsheet_id)
+
+    def __str__(self) -> str:
+        return f"GoogleSheetsHook(spreadsheet_id='{self.spreadsheet_id}', spreadsheet_title='{self.spreadsheet.title}')"
 
     def __adapt_data_for_gsheets(
         self,
@@ -245,4 +261,6 @@ class GoogleSheetsHook(GoogleBaseHook):
             return
         table_range = [table_range] if isinstance(table_range, str) else table_range
         sheet.batch_clear(table_range)
-        logger.info(f"Data cleared from {worksheet_name} worksheet successfully.")
+        logger.info(
+            f"Data cleared from ranges {table_range} in {worksheet_name} worksheet successfully."
+        )
