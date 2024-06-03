@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     SNOWFLAKE_PASSWORD: str = ""
     SNOWFLAKE_DATABASE: str = None
     SNOWFLAKE_WAREHOUSE: str = None
+    GOOGLE_SHEET_ID: str = None
 
     class Config:
         env_file = ".env"
