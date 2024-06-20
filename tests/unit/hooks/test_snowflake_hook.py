@@ -46,11 +46,29 @@ def test_split_queries(snowflake_hook):
         -- SELECT * FROM table3; -- Query 3 (commented out)
         SELECT * FROM table4; -- Query 4
     """
+    test_query_2 = """
+        BEGIN;
+
+        SELECT 
+            test_column:'//not_should_be_removed',
+            test_column_2 // should be removed 
+        FROM my_table;
+
+        COMMIT;
+    """
     expected_queries = ["SELECT * FROM table1;", "SELECT * FROM table2;", "SELECT * FROM table4;"]
+    expected_queries_2 = [
+        "BEGIN;",
+        "SELECT test_column:'//not_should_be_removed', test_column_2 FROM my_table;",
+        "COMMIT;",
+    ]
 
     result_queries = snowflake_hook._split_queries(test_query)
+    result_queries_2 = snowflake_hook._split_queries(test_query_2)
+    print(result_queries_2)
 
     assert result_queries == expected_queries
+    assert result_queries_2 == expected_queries_2
 
 
 @pytest.mark.unit

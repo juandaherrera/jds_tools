@@ -1,3 +1,4 @@
+import re
 from abc import ABC, abstractmethod
 from typing import List
 
@@ -14,12 +15,14 @@ class DataHook(BaseHook):
     def fetch_data(self, query: str) -> DataFrame:
         pass
 
-    def _split_queries(self, query: str) -> List[str]:
+    @staticmethod
+    def _split_queries(query: str) -> List[str]:
         """
         Split a SQL query into individual queries.
 
         This method splits a SQL query into individual queries based on the semicolon (;) delimiter,
-        excluding lines that are commented out with "--" or "//" before the semicolon.
+        excluding lines that are commented out with "--" or "//" before the semicolon, and considering
+        that "--" and "//" within single or double quotes should not be treated as comments.
 
         Args:
             query (str): The SQL query to split.
@@ -28,25 +31,35 @@ class DataHook(BaseHook):
             List[str]: A list of individual queries.
 
         """
-        lines = query.split('\n')
-        queries = []
-        current_query = ""
-        for line in lines:
-            line = line.strip()
-            if "--" in line:
-                line = line.split("--")[0].strip()
-            elif "//" in line:
-                line = line.split("//")[0].strip()
-            if ";" in line:
-                parts = line.split(";")
-                for part in parts:
-                    if part == "":
-                        continue
-                    current_query += part + ";"
-                    queries.append(current_query.strip())
-                    current_query = ""
-            else:
-                current_query += line + " " if line != "" else ""
-        if current_query:
-            queries.append(current_query.strip())
+
+        def remove_comments(sql: str) -> str:
+            pattern = r"""
+            (['"])(?:(?=(\\?))\2.)*?\1    # match strings
+            |--.*?$                       # match single line comments
+            |//.*?$                       # match single line comments
+            """
+            regex = re.compile(pattern, re.VERBOSE | re.MULTILINE)
+
+            def _replacer(match: re.Match) -> str:
+                if match.group(2) is None:  # Only replace comments
+                    return ''
+                return match.group(0)
+
+            return regex.sub(_replacer, sql)
+
+        def split_and_clean(sql: str) -> List[str]:
+            parts = sql.split(";")
+            cleaned_parts = []
+            for part in parts:
+                cleaned_part = ' '.join(part.split())  # Remove extra spaces
+                if cleaned_part:
+                    cleaned_parts.append(cleaned_part + ";")
+            return cleaned_parts
+
+        # Remove comments
+        cleaned_query = remove_comments(query)
+
+        # Split by semicolon and clean up each part
+        queries = split_and_clean(cleaned_query)
+
         return queries
