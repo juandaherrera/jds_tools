@@ -70,6 +70,7 @@ class JinjaHook(BaseHook):
             self.environment = Environment(loader=FileSystemLoader(self._templates_path))
         except Exception as e:
             logging.error(f"Error trying to update Jinja Environment. Details: {e}")
+            raise
 
     def render(self, template_file: str, params: dict = None) -> str:
         """Renders a template with the given parameters.

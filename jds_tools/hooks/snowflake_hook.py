@@ -208,6 +208,7 @@ class SnowflakeHook(DataHook):
             logging.info("Query executed successfully on Snowflake.")
         except SQLAlchemyError as e:
             logging.error(f"Error trying to execute query on Snowflake. Details: {e}")
+            raise
 
     def fetch_data(self, query: str, data_return: bool = True) -> Union[pd.DataFrame, None]:
         """
@@ -271,6 +272,7 @@ class SnowflakeHook(DataHook):
             logging.error(
                 f"Error trying to upload data to Snowflake ({self.database}.{schema}.{table_name}). Details: {e}"
             )
+            raise
 
     def dispose_engine(self) -> None:
         """
